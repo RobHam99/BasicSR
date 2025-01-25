@@ -48,7 +48,13 @@ def main():
         video_name = os.path.splitext(os.path.split(args.input_path)[-1])[0]
         input_path = os.path.join('./BasicVSR_tmp', video_name)
         os.makedirs(os.path.join('./BasicVSR_tmp', video_name), exist_ok=True)
-        os.system(f'ffmpeg -i {args.input_path} -qscale:v 1 -qmin 1 -qmax 1 -vsync 0  {input_path} /frame%08d.png')
+        os.system(f'ffmpeg -i {args.input_path} -qscale:v 1 -qmin 1 -qmax 1 -vsync 0  {input_path}/frame%08d.png')
+
+
+    # want to process yuv input frames
+    # load yuv frames in rgb format
+    # convert to tensor
+
 
     # load data and inference
     imgs_list = sorted(glob.glob(os.path.join(input_path, '*')))
