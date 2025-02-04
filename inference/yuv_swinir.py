@@ -16,22 +16,21 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', type=str, default='datasets/swin.yuv', help='input yuv file')
     parser.add_argument('--output', type=str, default='results/swin.yuv', help='output yuv file')
-    parser.add_argument('--num_frames', type=int, default=64, help='number of frames to process')
+    parser.add_argument('--num_frames', type=int, default=60, help='number of frames to process')
     parser.add_argument('--width', type=int, default=960, help='width of the frames')
     parser.add_argument('--height', type=int, default=544, help='height of the frames')
-    parser.add_argument('--patch_size', type=int, default=64, help='training patch size')
     parser.add_argument('--scale', type=int, default=4, help='scale factor: 2, 4, 8')
+    parser.add_argument('--patch_size', type=int, default=64, help='patch size')
     args = parser.parse_args()
 
-    model_path = f"experiments/pretrained_models/swinir/001_classicalSR_DF2K_s64w8_SwinIR-M_x{args.scale}.pth"
+    model_path = f"/home/sk24938/source/sr/BasicSR/experiments/pretrained_models/swinir/001_classicalSR_DF2K_s64w8_SwinIR-M_x{args.scale}.pth"
+    window_size = 8
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # set up model
     model = define_model(args, model_path)
     model.eval()
     model = model.to(device)
-
-    window_size = 8
 
     frames_np = load_yuv_frames(
         video_file_path=args.input,
@@ -45,7 +44,7 @@ def main():
     frames_tensor = torch.from_numpy(frames_np).permute(0, 3, 1, 2).float().unsqueeze(0)
 
     frames_list = []
-    for idx in tqdm(range(frames_tensor.shape[1]), desc='Processing frames', leave=False):
+    for idx in tqdm(range(frames_tensor.shape[1]), desc='SwinIR'):
         frame = frames_tensor[:, idx].to(device)
         # inference
         with torch.no_grad():
@@ -67,12 +66,9 @@ def main():
         output = output.data.squeeze().float().cpu()
         frames_list.append(output)
 
-    tqdm.write('Saving video')
     video = torch.stack(frames_list, dim=0)
     video = video.permute(0, 2, 3, 1)
-    tqdm.write(f'Upsampled video shape: {video.shape}')
     rgb_to_yuv420p10bit(video, args.output)
-    tqdm.write('Done!')
 
 def define_model(args, model_path):
     # 001 classical image sr
@@ -90,7 +86,7 @@ def define_model(args, model_path):
         resi_connection='1conv')
 
 
-    loadnet = torch.load(model_path)
+    loadnet = torch.load(model_path, weights_only=True)
     if 'params_ema' in loadnet:
         keyname = 'params_ema'
     else:

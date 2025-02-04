@@ -1,0 +1,3 @@
+python3 yuv_swinir.py --input /mnt/e/datasets/bvi-aom/ds-yuv/BFireS21Mitch_1920x1088_24fps_10bit_420.yuv --output /mnt/e/datasets/bvi-aom/excluded_sequences/mitchx2.yuv --num_frames 60 --width 1920 --height 1088 --scale 2
+python3 yuv_swinir.py --input /mnt/e/datasets/bvi-aom/ds-yuv/CFireS21Mitch_960x544_24fps_10bit_420.yuv --output /mnt/e/datasets/bvi-aom/excluded_sequences/mitchx4.yuv --num_frames 60 --width 960 --height 544 --scale 4
+python3 yuv_swinir.py --input /mnt/e/datasets/bvi-aom/ds-yuv/BFireS21Mitch_480x272_24fps_10bit_420.yuv --output /mnt/e/datasets/bvi-aom/excluded_sequences/mitchx8.yuv --num_frames 60 --width 480 --height 272 --scale 8

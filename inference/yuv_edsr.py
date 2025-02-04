@@ -19,7 +19,7 @@ def main():
     parser.add_argument('--width', type=int, default=960, help='Width of the video')
     parser.add_argument('--height', type=int, default=544, help='Height of the video')
     parser.add_argument('--scale', type=int, default=4, help='Scaling factor')
-
+    # Before inference
     args = parser.parse_args()
 
     if args.scale == 4:
@@ -42,7 +42,7 @@ def main():
         img_range=1.0,
         rgb_mean=(0.4488, 0.4371, 0.4040)
     )
-    model.load_state_dict(torch.load(model_path)['params'], strict=True)
+    model.load_state_dict(torch.load(model_path, weights_only=True)['params'], strict=True)
     model.eval()
     model = model.to(device)
 
@@ -64,12 +64,13 @@ def main():
     frames_tensor = frames_tensor.to(device)
 
     frame_list = []
-    for i in tqdm(range(frames_tensor.shape[0]), desc='Processing frames'):
+    for i in tqdm(range(frames_tensor.shape[0]), desc='EDSR'):
         frame = frames_tensor[i, :, :, :]
         # inference
         try:
             with torch.no_grad():
                 output = model(frame)
+
         except Exception as error:
             print('Error', error, i)
         else:
@@ -77,12 +78,9 @@ def main():
             output = output.data.squeeze().cpu()
             frame_list.append(output)
 
-    print('Saving video...')
     video = torch.stack(frame_list, dim=0)
     video = video.permute(0, 2, 3, 1)
-    print('Upsampled video shape: ', video.shape)
     rgb_to_yuv420p10bit(video, args.output)
-    print('Done!')
 
 
 if __name__ == '__main__':

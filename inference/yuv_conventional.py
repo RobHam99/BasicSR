@@ -2,6 +2,7 @@ from PIL import Image
 from yuv_utils import *
 import cv2
 import argparse
+from tqdm import tqdm
 
 
 def write_yuv_file(y, u, v, output_file_path):
@@ -13,8 +14,6 @@ def write_yuv_file(y, u, v, output_file_path):
             f.write(y[i].tobytes())
             f.write(u[i].tobytes())
             f.write(v[i].tobytes())
-
-    print(f"YUV file written to {output_file_path}")
 
 
 def rescale_frame(frame, scaling_factor=2, bit_depth=10, method='bicubic'):
@@ -88,7 +87,7 @@ def main():
     y_arr = []
     u_arr = []
     v_arr = []
-    for i, frame in enumerate(yuv_frame):
+    for i, frame in tqdm(enumerate(yuv_frame), desc=f'{args.method}'):
         y, u, v = rescale_frame(
             frame=frame,
             scaling_factor=args.scale,

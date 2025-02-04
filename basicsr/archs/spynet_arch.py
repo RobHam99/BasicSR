@@ -37,7 +37,6 @@ class SpyNet(nn.Module):
         super(SpyNet, self).__init__()
         self.basic_module = nn.ModuleList([BasicModule() for _ in range(6)])
         if load_path:
-            print('KEYS',torch.load(load_path).keys())
             self.load_state_dict(torch.load(load_path, map_location=lambda storage, loc: storage)['params'], strict=True)
 
         self.register_buffer('mean', torch.Tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1))

@@ -54,7 +54,7 @@ def main():
         num_reconstruct_block=10,
         hr_in=False,
     )
-    model.load_state_dict(torch.load(model_path)['params'], strict=True)
+    model.load_state_dict(torch.load(model_path, weights_only=True)['params'], strict=True)
     model.eval()
     model = model.to(device)
 
@@ -78,7 +78,7 @@ def main():
     frames_tensor = pad_frames(frames_tensor, pad_size)
 
     frame_list = []
-    for idx in tqdm(range(0 + pad_size, args.num_frames + pad_size, 1), desc='Processing frames'):
+    for idx in tqdm(range(0 + pad_size, args.num_frames + pad_size, 1), desc='EDVR'):
         start_idx = idx - pad_size
         end_idx = idx + pad_size
         frames_tensor_chunk = frames_tensor[:, start_idx:end_idx+1, :, :, :].to(device)
@@ -86,12 +86,8 @@ def main():
         frame_list.append(output)
         torch.cuda.empty_cache()
 
-    print('Saving video...')
     video = torch.stack(frame_list, dim=0)
-    print('Upsampled video shape: ', video.shape)
     rgb_to_yuv420p10bit(video, args.output)
-    print('Done!')
-
 
 if __name__ == '__main__':
     main()
